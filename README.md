@@ -1,4 +1,4 @@
-# echr_uploader
+# ECHR court decisions uploader
 Upload court decision data of European Court of Human Rights from https://app.echr.coe.int/SOP/index.aspx
 
 # Number of courts by year as of 2021/05/24
