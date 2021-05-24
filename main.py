@@ -1,12 +1,34 @@
-from modules.models import *
-from modules.multi_downloader import *
+from modules.echr_models import *
+from modules.echr_multi_downloader import *
+from modules.echr_export import *
+from modules.echr_statistics import *
 import time
 from itertools import islice
 
 
 def run_script():
+
     print("Start -", time.strftime("%H:%M:%S", time.localtime()))
+
+    # DATABASE
     create_tables()
+
+    # GET ALL DATA FROM WEBSITE
+    # download_data()
+
+    # COURT DECISIONS DATAFRAME
+    court_decisions_df = get_dataframe("court_decisions")
+
+    # EXPORT EXEL
+    export_exel(court_decisions_df)
+
+    # CREATE PLOTS
+    create_plots(court_decisions_df)
+
+    print("End -", time.strftime("%H:%M:%S", time.localtime()))
+
+
+def download_data():
     print_status("Year", "Start", "End", "Time", "Courts")
     for year in [
             "03", "04", "05", "06", "07", "08", "09", "10",
@@ -15,7 +37,6 @@ def run_script():
         print_status(year, "", "", time.strftime("%H:%M:%S", time.localtime()), "")
         download_year_data(year, 10000)
         database.commit()
-    print("End -", time.strftime("%H:%M:%S", time.localtime()))
 
 
 def download_year_data(year, batch_size):
