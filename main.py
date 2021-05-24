@@ -14,7 +14,7 @@ def run_script():
     create_tables()
 
     # GET ALL DATA FROM WEBSITE
-    # download_data()
+    download_data()
 
     # COURT DECISIONS DATAFRAME
     court_decisions_df = get_dataframe("court_decisions")
