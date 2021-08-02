@@ -1,6 +1,5 @@
 import numpy as np
 import time
-import sqlite3
 import matplotlib.pyplot as plt
 
 
@@ -43,7 +42,7 @@ def draw_distribution_plot(df):
 
     timestamp = time.strftime("%Y-%m-%d %H-%M-%S", time.localtime())
     plt.savefig("export/Number of ECHR courts by year " + timestamp + ".png")
-    plt.show()
+    # plt.show()
 
 
 def number_to_20_cen_year(number):
@@ -54,7 +53,3 @@ def number_to_20_cen_year(number):
     """
     year = "2000"[:len("2000")-len(str(number))] + str(number)
     return year
-
-
-if __name__ == '__main__':
-    run_script()

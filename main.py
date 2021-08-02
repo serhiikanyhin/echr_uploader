@@ -10,20 +10,21 @@ def run_script():
 
     print("Start -", time.strftime("%H:%M:%S", time.localtime()))
 
-    # DATABASE
-    create_tables()
-
-    # GET ALL DATA FROM WEBSITE
+    # # GET ALL DATA FROM WEBSITE
     download_data()
+    print('[INFO] Data downloaded')
 
     # COURT DECISIONS DATAFRAME
-    court_decisions_df = get_dataframe("court_decisions")
+    court_decisions_df = get_dataframe()
+    print('[INFO] Dataframe prepared')
 
     # EXPORT EXEL
     export_exel(court_decisions_df)
+    print('[INFO] Exported to exel')
 
     # CREATE PLOTS
     create_plots(court_decisions_df)
+    print('[INFO] Plots created')
 
     print("End -", time.strftime("%H:%M:%S", time.localtime()))
 
@@ -34,9 +35,10 @@ def download_data():
             "03", "04", "05", "06", "07", "08", "09", "10",
             "11", "12", "13", "14", "15", "16", "17", "18",
             "19", "20", "21"]:
+        # download status log
         print_status(year, "", "", time.strftime("%H:%M:%S", time.localtime()), "")
         download_year_data(year, 10000)
-        database.commit()
+        session.commit()
 
 
 def download_year_data(year, batch_size):

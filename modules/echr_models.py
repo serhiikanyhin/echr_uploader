@@ -1,61 +1,44 @@
-from peewee import *
 import pandas as pd
+from sqlalchemy import create_engine, Column, String, Integer, LargeBinary, Float, ForeignKey, func
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
-database = SqliteDatabase("data/courts.db")
-
-
-class BaseModel(Model):
-    class Meta:
-        database = database
-
-
-class CourtDecision(BaseModel):
-    court_decision_id = AutoField()
-    application_number_id = IntegerField()
-    application_number_year = IntegerField()
-    application_number = IntegerField()
-    application_title = CharField()
-    date_of_introduction = CharField()
-    name_of_representative = CharField()
-    current_state_of_proceedings = CharField()
-    last_major_event_date = CharField()
-    last_major_event_description = CharField(max_length="1000")
-    major_events = CharField(max_length="2000")
+db = create_engine('sqlite+pysqlcipher:///data/courts.db', connect_args={'check_same_thread': False})
+database = declarative_base()
+session = sessionmaker(db)()
 
 
-def insert_many_court_decisions(data):
+class CourtDecision(database):
+    __tablename__ = 'court_decisions'
+    court_decision_id = Column(Integer, primary_key=True)
+    application_number_id = Column(String)
+    application_number_year = Column(String)
+    application_number = Column(String)
+    application_title = Column(String)
+    date_of_introduction = Column(String)
+    name_of_representative = Column(String)
+    current_state_of_proceedings = Column(String)
+    last_major_event_date = Column(String)
+    last_major_event_description = Column(String)
+    major_events = Column(String)
+
+
+def insert_many_court_decisions(records):
     """
     append a new court_decision into the court_decisions table
-    :param data: list of tuples with data [(2,21,'text'),(3,21,'text')...]
+    :param records: list of tuples with data [{'par1':'val1','par2':'val2',...},{'par1':'val1','par2':'val2',...},...]
     """
 
-    fields = [
-        'application_number_id',
-        'application_number_year',
-        'application_number',
-        'application_title',
-        'date_of_introduction',
-        'name_of_representative',
-        'current_state_of_proceedings',
-        'last_major_event_date',
-        'last_major_event_description',
-        'major_events'
-    ]
-
-    CourtDecision.insert_many(data, fields).execute()
+    session.bulk_insert_mappings(CourtDecision, records)
+    session.commit()
 
 
-def create_tables():
-    with database:
-        database.create_tables([CourtDecision])
-
-
-def get_dataframe(table_name):
-    cursor = database.execute_sql("SELECT * from " + table_name)
-    df = pd.DataFrame(cursor.fetchall())
-    df.columns = [i[0] for i in cursor.description]
+def get_dataframe():
+    df = pd.read_sql(session.query(CourtDecision).statement, session.bind)
     return df
 
+
+database.metadata.create_all(db)
 
 if __name__ == '__main__':
     print()

@@ -7,9 +7,12 @@ from bs4 import BeautifulSoup
 
 # Async parameter
 MAX_WORKERS = 100
+requests.packages.urllib3.disable_warnings()
+requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS += ':HIGH:!DH:!aNULL'
 
 
 def async_download(application_numbers_range, year):
+
     request_parameters = get_request_parameters()
     court_decisions = []
 
@@ -26,9 +29,11 @@ def get_request_parameters():
     :return: parameters for subsequent requests to https://app.echr.coe.int/SOP/index.aspx?lg=en
     """
     url = "https://app.echr.coe.int/SOP/index.aspx?lg=en"
+
     try:
         response = requests.request("GET", url=url, timeout=3)
     except Exception as e:
+        print(e)
         return get_request_parameters()
 
     soup = BeautifulSoup(response.text, 'html.parser')
@@ -95,18 +100,18 @@ def handle_response(response, number, year):
     if error is None:
         major_events = get_major_events(soup)
 
-        echr_court_decision_data = (
-            str(number),  # Application number id
-            str(year),  # Application number year
-            get_element_id(soup, "lblRegisteredNo"),  # Application number
-            get_element_id(soup, "lblCaseTitle"),  # Application title
-            get_element_id(soup, "lblDateOfIntroduction"),  # Date of Introduction
-            get_element_id(soup, "lblRepresentativeName"),  # Name of representative
-            get_element_id(soup, "lblCurrentSOP"),  # Current state of proceedings
-            get_element_id(soup, "lblLME"),  # Last major event date
-            get_element_id(soup, "lblLMEDesc"),  # Last major event description
-            str(major_events)  # Major events
-        )
+        echr_court_decision_data = {
+            'application_number_id': str(number),
+            'application_number_year': str(year),
+            'application_number': get_element_id(soup, "lblRegisteredNo"),
+            'application_title': get_element_id(soup, "lblCaseTitle"),
+            'date_of_introduction': get_element_id(soup, "lblDateOfIntroduction"),
+            'name_of_representative': get_element_id(soup, "lblRepresentativeName"),
+            'current_state_of_proceedings': get_element_id(soup, "lblCurrentSOP"),
+            'last_major_event_date': get_element_id(soup, "lblLME"),
+            'last_major_event_description': get_element_id(soup, "lblLMEDesc"),
+            'major_events': str(major_events)
+        }
 
         return echr_court_decision_data
 
